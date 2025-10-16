@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Xpenso - Home</title>
+	<link rel="icon" href="images/logo.png" type="image/png">
+	<script src="https://cdn.tailwindcss.com"></script>
+	<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 min-h-screen">
+	<!-- Navigation -->
+	<nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+		<div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+			<div class="flex justify-between items-center h-14 sm:h-16">
+				<div class="flex items-center space-x-4">
+					<img src="images/logo.png" alt="Xpenso" class="h-6 sm:h-8 w-auto">
+					<h1 class="text-lg sm:text-xl font-semibold text-gray-900">Xpenso</h1>
+					<a href="index.html" class="text-blue-600 font-medium text-sm">Home</a>
+					<a href="home.html" class="text-gray-600 hover:text-gray-900 text-sm">Dashboard</a>
+				</div>
+				<div class="flex items-center space-x-2 sm:space-x-4">
+					<button id="logoutBtn" class="text-gray-500 hover:text-gray-700 hidden p-2">
+						<i class="fas fa-sign-out-alt text-sm sm:text-base"></i>
+						<span class="hidden sm:inline ml-1">Logout</span>
+					</button>
+					<a href="add.html" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 sm:px-4 rounded-md text-xs sm:text-sm font-medium transition-colors">
+						<i class="fas fa-plus text-xs sm:text-sm"></i>
+						<span class="hidden sm:inline ml-1">Add Expense</span>
+						<span class="sm:hidden">Add</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Main Content -->
+	<div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+		<!-- Overview Cards -->
+		<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
+			<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-rupee-sign text-green-600 text-xl sm:text-2xl"></i>
+					</div>
+					<div class="ml-3 sm:ml-4 min-w-0 flex-1">
+						<p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Total Expenses</p>
+						<p id="totalExpenses" class="text-lg sm:text-2xl font-semibold text-gray-900">₹0.00</p>
+					</div>
+				</div>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-check-circle text-blue-600 text-xl sm:text-2xl"></i>
+					</div>
+					<div class="ml-3 sm:ml-4 min-w-0 flex-1">
+						<p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Claimed</p>
+						<p id="claimedExpenses" class="text-lg sm:text-2xl font-semibold text-gray-900">₹0.00</p>
+					</div>
+				</div>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-clock text-orange-600 text-xl sm:text-2xl"></i>
+					</div>
+					<div class="ml-3 sm:ml-4 min-w-0 flex-1">
+						<p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Pending</p>
+						<p id="pendingExpenses" class="text-lg sm:text-2xl font-semibold text-gray-900">₹0.00</p>
+					</div>
+				</div>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-road text-purple-600 text-xl sm:text-2xl"></i>
+					</div>
+					<div class="ml-3 sm:ml-4 min-w-0 flex-1">
+						<p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Total KM</p>
+						<p id="totalKm" class="text-lg sm:text-2xl font-semibold text-gray-900">0 km</p>
+					</div>
+				</div>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow p-4 sm:p-6">
+				<div class="flex items-center">
+					<div class="flex-shrink-0">
+						<i class="fas fa-gas-pump text-indigo-600 text-xl sm:text-2xl"></i>
+					</div>
+					<div class="ml-3 sm:ml-4 min-w-0 flex-1">
+						<p class="text-xs sm:text-sm font-medium text-gray-500 truncate">Unclaimed KM</p>
+						<p id="unclaimedKm" class="text-lg sm:text-2xl font-semibold text-gray-900">0 km</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Charts Grid -->
+		<div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+			<div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+				<h3 class="text-sm sm:text-base font-medium text-gray-900 mb-3">Expenses by Category</h3>
+				<canvas id="chartByCategory" height="220"></canvas>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+				<h3 class="text-sm sm:text-base font-medium text-gray-900 mb-3">Expenses Over Time</h3>
+				<canvas id="chartOverTime" height="220"></canvas>
+			</div>
+			<div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+				<h3 class="text-sm sm:text-base font-medium text-gray-900 mb-3">Claimed vs Pending</h3>
+				<canvas id="chartClaimedPending" height="220"></canvas>
+			</div>
+		</div>
+
+		<!-- Loading State -->
+		<div id="loadingState" class="text-center py-8 hidden">
+			<i class="fas fa-spinner fa-spin text-2xl text-gray-400"></i>
+			<p class="mt-2 text-sm text-gray-500">Loading...</p>
+		</div>
+	</div>
+
+	<script src="js/supabase.js"></script>
+	<script src="js/auth.js"></script>
+	<script src="js/overview.js"></script>
+	<script src="js/analytics.js"></script>
+</body>
+</html>
+
+
+
+
+
+

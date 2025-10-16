@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expense - Xpenso</title>
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm border-b sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
+            <div class="flex justify-between items-center h-14 sm:h-16">
+				<div class="flex items-center">
+                    <a href="index.html" class="text-blue-600 hover:text-blue-800 mr-3 sm:mr-4 p-1">
+                        <i class="fas fa-arrow-left text-sm sm:text-base"></i>
+                    </a>
+					<img src="images/logo.png" alt="Xpenso" class="h-6 sm:h-8 w-auto mr-2">
+					<h1 class="text-lg sm:text-xl font-semibold text-gray-900">Add Expense</h1>
+                </div>
+                <div class="flex items-center space-x-2 sm:space-x-4">
+                    <button id="logoutBtn" class="text-gray-500 hover:text-gray-700 hidden p-2">
+                        <i class="fas fa-sign-out-alt text-sm sm:text-base"></i>
+                        <span class="hidden sm:inline ml-1">Logout</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-2xl mx-auto px-3 sm:px-4 lg:px-8 py-4 sm:py-6 lg:py-8">
+        <div class="bg-white rounded-lg shadow-sm p-4 sm:p-6">
+            <form id="expenseForm" class="space-y-4 sm:space-y-6">
+                <!-- Date -->
+                <div>
+                    <label for="date" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Date <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" id="date" name="date" required
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Time -->
+                <div>
+                    <label for="time" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Time <span class="text-red-500">*</span>
+                    </label>
+                    <input type="time" id="time" name="time" required
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                </div>
+
+                <!-- Category -->
+                <div>
+                    <label for="category" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Category <span class="text-red-500">*</span>
+                    </label>
+                    <select id="category" name="category" required
+                            class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select Category</option>
+                        <option value="Bus">Bus</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Food">Food</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+
+                <!-- Bus Fields -->
+                <div id="busFields" class="hidden space-y-3 sm:space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label for="fromPlace" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                From Place <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="fromPlace" name="fromPlace"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="toPlace" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                To Place <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="toPlace" name="toPlace"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                        <div>
+                            <label for="count" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                Count <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="count" name="count" min="1"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="price" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                                Unit Price (₹) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="price" name="price" step="0.01" min="0"
+                                   class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Petrol Fields -->
+                <div id="petrolFields" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="fromPlacePetrol" class="block text-sm font-medium text-gray-700 mb-2">
+                                From Place <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="fromPlacePetrol" name="fromPlacePetrol"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="toPlacePetrol" class="block text-sm font-medium text-gray-700 mb-2">
+                                To Place <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" id="toPlacePetrol" name="toPlacePetrol"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="km" class="block text-sm font-medium text-gray-700 mb-2">
+                                Distance (KM) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="km" name="km" step="0.1" min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="pricePetrol" class="block text-sm font-medium text-gray-700 mb-2">
+                                Price per KM (₹) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="pricePetrol" name="pricePetrol" step="0.01" min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Food Fields -->
+                <div id="foodFields" class="hidden space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="persons" class="block text-sm font-medium text-gray-700 mb-2">
+                                Number of Persons <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="persons" name="persons" min="1"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label for="priceFood" class="block text-sm font-medium text-gray-700 mb-2">
+                                Price per Person (₹) <span class="text-red-500">*</span>
+                            </label>
+                            <input type="number" id="priceFood" name="priceFood" step="0.01" min="0"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Others Fields -->
+                <div id="othersFields" class="hidden space-y-4">
+                    <div>
+                        <label for="itemName" class="block text-sm font-medium text-gray-700 mb-2">
+                            Item Name <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" id="itemName" name="itemName"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="priceOthers" class="block text-sm font-medium text-gray-700 mb-2">
+                            Price (₹) <span class="text-red-500">*</span>
+                        </label>
+                        <input type="number" id="priceOthers" name="priceOthers" step="0.01" min="0"
+                               class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+
+                <!-- Total (Auto-calculated) -->
+                <div>
+                    <label for="total" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Total Amount (₹)
+                    </label>
+                    <input type="number" id="total" name="total" step="0.01" readonly
+                           class="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-50 text-base sm:text-lg font-semibold">
+                </div>
+
+                <!-- Claimed Status -->
+                <div>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="claimed" name="claimed"
+                               class="rounded border-gray-300 text-blue-600 shadow-sm focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50">
+                        <span class="ml-2 text-xs sm:text-sm text-gray-700">Mark as claimed</span>
+                    </label>
+                </div>
+
+                <!-- Bill Upload -->
+                <div>
+                    <label for="billFile" class="block text-xs sm:text-sm font-medium text-gray-700 mb-1 sm:mb-2">
+                        Bill/Receipt (Optional)
+                    </label>
+                    <div class="mt-1 flex justify-center px-4 sm:px-6 pt-4 sm:pt-5 pb-4 sm:pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+                        <div class="space-y-1 text-center">
+                            <i class="fas fa-cloud-upload-alt text-2xl sm:text-3xl text-gray-400"></i>
+                            <div class="flex flex-col sm:flex-row text-xs sm:text-sm text-gray-600">
+                                <label for="billFile" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                    <span>Upload a file</span>
+                                    <input id="billFile" name="billFile" type="file" accept=".jpg,.jpeg,.png,.pdf" class="sr-only">
+                                </label>
+                                <p class="hidden sm:block sm:pl-1">or drag and drop</p>
+                            </div>
+                            <p class="text-xs text-gray-500">PNG, JPG, PDF up to 10MB</p>
+                        </div>
+                    </div>
+                    <div id="filePreview" class="mt-2 hidden">
+                        <div class="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
+                            <i class="fas fa-file text-blue-500"></i>
+                            <span id="fileName" class="truncate flex-1"></span>
+                            <button type="button" id="removeFile" class="text-red-500 hover:text-red-700 p-1">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 sm:pt-6 border-t">
+                    <a href="index.html" class="w-full sm:w-auto px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors text-center">
+                        Cancel
+                    </a>
+                    <button type="submit" id="submitBtn" class="w-full sm:w-auto px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors">
+                        <i class="fas fa-save mr-1"></i> Save Expense
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <div class="flex items-center justify-center min-h-screen">
+            <div class="bg-white rounded-lg shadow-xl p-6">
+                <div class="flex items-center space-x-3">
+                    <i class="fas fa-spinner fa-spin text-blue-600 text-xl"></i>
+                    <span class="text-gray-700">Saving expense...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/form.js"></script>
+</body>
+</html>
