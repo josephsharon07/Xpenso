@@ -9,7 +9,7 @@
 -- Drop existing table if it exists (for fresh start)
 DROP TABLE IF EXISTS expenses CASCADE;
 
--- Create the expenses table
+-- Create expenses table (keeping original structure)
 CREATE TABLE expenses (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     date DATE NOT NULL,
@@ -31,25 +31,44 @@ CREATE TABLE expenses (
 -- Enable Row Level Security (RLS)
 ALTER TABLE expenses ENABLE ROW LEVEL SECURITY;
 
--- Create permissive policies for testing (allows all operations without auth)
--- Allow everyone to read expenses
-CREATE POLICY "Allow read for everyone" ON expenses FOR SELECT USING (true);
+-- Drop existing policies
+DROP POLICY IF EXISTS "Allow read for everyone" ON expenses;
+DROP POLICY IF EXISTS "Allow insert for everyone" ON expenses;
+DROP POLICY IF EXISTS "Allow update for everyone" ON expenses;
+DROP POLICY IF EXISTS "Allow delete for everyone" ON expenses;
 
--- Allow everyone to insert expenses
-CREATE POLICY "Allow insert for everyone" ON expenses FOR INSERT WITH CHECK (true);
+-- Create strict authenticated-only policies
+-- Only authenticated users can read expenses
+CREATE POLICY "Allow read for authenticated users only" ON expenses
+    FOR SELECT USING (auth.role() = 'authenticated');
 
--- Allow everyone to update expenses
-CREATE POLICY "Allow update for everyone" ON expenses FOR UPDATE USING (true);
+-- Only authenticated users can insert expenses
+CREATE POLICY "Allow insert for authenticated users only" ON expenses
+    FOR INSERT WITH CHECK (
+        auth.role() = 'authenticated' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
 
--- Allow everyone to delete expenses
-CREATE POLICY "Allow delete for everyone" ON expenses FOR DELETE USING (true);
+-- Only authenticated users can update expenses
+CREATE POLICY "Allow update for authenticated users only" ON expenses
+    FOR UPDATE USING (
+        auth.role() = 'authenticated' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
 
--- Create indexes for better performance
+-- Only authenticated users can delete expenses
+CREATE POLICY "Allow delete for authenticated users only" ON expenses
+    FOR DELETE USING (
+        auth.role() = 'authenticated' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
+
+-- Create indexes for better performance (keeping existing indexes)
 CREATE INDEX idx_expenses_date ON expenses(date DESC);
 CREATE INDEX idx_expenses_category ON expenses(category);
 CREATE INDEX idx_expenses_claimed ON expenses(claimed);
 
--- Create a function to automatically update the total field
+-- Create a function to automatically calculate total field (keeping existing function)
 CREATE OR REPLACE FUNCTION calculate_expense_total()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -74,8 +93,8 @@ CREATE TRIGGER trigger_calculate_total
     FOR EACH ROW
     EXECUTE FUNCTION calculate_expense_total();
 
--- Create a view for expense summaries
-CREATE VIEW expense_summary AS
+-- Create a view for expense summaries with enhanced security
+CREATE OR REPLACE VIEW expense_summary AS
 SELECT 
     category,
     COUNT(*) as total_count,
@@ -83,41 +102,57 @@ SELECT
     SUM(CASE WHEN claimed THEN total ELSE 0 END) as claimed_amount,
     SUM(CASE WHEN NOT claimed THEN total ELSE 0 END) as pending_amount
 FROM expenses
+WHERE auth.role() = 'authenticated'  -- Only show data to authenticated users
 GROUP BY category;
 
--- Grant permissions for the view
-GRANT SELECT ON expense_summary TO anon, authenticated;
+-- Secure the view
+REVOKE ALL ON expense_summary FROM anon;
+GRANT SELECT ON expense_summary TO authenticated;
 
 -- ===========================================
 -- 2. STORAGE SETUP
 -- ===========================================
 
--- Drop existing storage policies (if any)
-DROP POLICY IF EXISTS "Allow public read access" ON storage.objects;
-DROP POLICY IF EXISTS "Allow authenticated users to upload" ON storage.objects;
-DROP POLICY IF EXISTS "Allow authenticated users to update" ON storage.objects;
-DROP POLICY IF EXISTS "Allow authenticated users to delete" ON storage.objects;
+-- Drop existing storage policies
 DROP POLICY IF EXISTS "Allow public read access to bills" ON storage.objects;
 DROP POLICY IF EXISTS "Allow upload to bills" ON storage.objects;
 DROP POLICY IF EXISTS "Allow update in bills" ON storage.objects;
 DROP POLICY IF EXISTS "Allow delete from bills" ON storage.objects;
 
--- Create new permissive storage policies for the bills bucket
--- Allow public read access to bills
-CREATE POLICY "Allow public read access to bills" ON storage.objects
-FOR SELECT USING (bucket_id = 'bills');
+-- Create strict storage policies for bills
+CREATE POLICY "Allow authenticated read access to bills" ON storage.objects
+    FOR SELECT USING (
+        auth.role() = 'authenticated' AND 
+        bucket_id = 'bills' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
 
--- Allow anyone to upload to bills bucket
-CREATE POLICY "Allow upload to bills" ON storage.objects
-FOR INSERT WITH CHECK (bucket_id = 'bills');
+CREATE POLICY "Allow authenticated upload to bills" ON storage.objects
+    FOR INSERT WITH CHECK (
+        auth.role() = 'authenticated' AND 
+        bucket_id = 'bills' AND 
+        coalesce(auth.jwt()->>'email', '') != '' AND
+        (
+            name LIKE '%.jpg' OR 
+            name LIKE '%.jpeg' OR 
+            name LIKE '%.png' OR 
+            name LIKE '%.pdf'
+        )
+    );
 
--- Allow anyone to update files in bills bucket
-CREATE POLICY "Allow update in bills" ON storage.objects
-FOR UPDATE USING (bucket_id = 'bills');
+CREATE POLICY "Allow authenticated update in bills" ON storage.objects
+    FOR UPDATE USING (
+        auth.role() = 'authenticated' AND 
+        bucket_id = 'bills' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
 
--- Allow anyone to delete files in bills bucket
-CREATE POLICY "Allow delete from bills" ON storage.objects
-FOR DELETE USING (bucket_id = 'bills');
+CREATE POLICY "Allow authenticated delete from bills" ON storage.objects
+    FOR DELETE USING (
+        auth.role() = 'authenticated' AND 
+        bucket_id = 'bills' AND 
+        coalesce(auth.jwt()->>'email', '') != ''
+    );
 
 -- ===========================================
 -- 3. SAMPLE DATA (Optional)

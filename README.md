@@ -4,10 +4,10 @@ A modern, responsive web application for managing company expenses with file upl
 
 ## 🚀 Features
 
+- **Secure Authentication**: Required login for all application features
 - **Dashboard**: View all expenses with filtering and search capabilities
 - **Add/Edit Expenses**: Dynamic forms based on expense category (Bus, Petrol, Food, Others)
-- **File Upload**: Upload bill images/PDFs to Supabase Storage
-- **Authentication**: Optional login system using Supabase Auth
+- **File Upload**: Upload bill images/PDFs to Supabase Storage (authenticated access only)
 - **Responsive Design**: Mobile-friendly interface with Tailwind CSS
 - **Real-time Updates**: Direct database integration with Supabase
 
@@ -154,10 +154,10 @@ company-expenses/
 
 ## 🔒 Security Features
 
-- **Row Level Security (RLS)**: Database policies control access
-- **Public Read Access**: Anyone can view expenses (for transparency)
-- **Authenticated Write Access**: Only logged-in users can add/edit/delete
-- **File Upload Security**: File type and size validation
+- **Row Level Security (RLS)**: Database policies enforce authenticated access
+- **Authenticated Access Only**: All operations require authentication
+- **File Upload Security**: File type and size validation with authenticated access
+- **Session Management**: Secure session handling through Supabase Auth
 
 ## 🎨 Customization
 

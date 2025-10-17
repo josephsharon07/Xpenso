@@ -31,21 +31,27 @@ class AuthManager {
                 return;
             }
 
+            // Get current page
+            const currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            const publicPages = ['login.html'];
+
             if (session) {
                 this.showAuthenticatedUI();
                 // Redirect from login page if already authenticated
-                if (window.location.pathname.includes('login.html')) {
+                if (currentPage === 'login.html') {
                     window.location.href = 'index.html';
                 }
             } else {
                 this.showUnauthenticatedUI();
-                // Redirect to login if trying to access protected pages
-                if (window.location.pathname.includes('add.html')) {
+                // Redirect to login if not on a public page
+                if (!publicPages.includes(currentPage)) {
                     window.location.href = 'login.html';
                 }
             }
         } catch (error) {
             console.error('Error in checkSession:', error);
+            // Redirect to login on error
+            window.location.href = 'login.html';
         }
     }
 
